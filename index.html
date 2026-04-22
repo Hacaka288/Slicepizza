@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Pizza Slice 🍕</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#FF4F6D;--teal:#00D4A0;--yellow:#FFB800;--orange:#FF6B35;
+  --dark:#0c0600;--card:#1c0e02;--border:rgba(255,184,0,0.2);
+  --text:#FFF5E0;--muted:#887766;
+}
+body{
+  font-family:'Nunito',sans-serif;
+  background:radial-gradient(ellipse at top,#1a0900 0%,#0c0500 60%,#080300 100%);
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;color:var(--text);
+}
+.screen{
+  display:none;width:100%;max-width:420px;
+  padding:20px;animation:fadeUp .35s ease;
+}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LANDING ── */
+#s-landing{text-align:center;padding-top:30px}
+.pizza-spin{font-size:88px;display:block;margin-bottom:10px;
+  animation:spin 8s linear infinite,bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+@keyframes spin{to{transform:rotate(360deg) translateY(-6px)}}
+.game-title{
+  font-family:'Fredoka One',cursive;font-size:56px;line-height:1;
+  background:linear-gradient(135deg,#FFD060,#FF9500,#FF4F00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:6px;
+  filter:drop-shadow(0 2px 12px rgba(255,150,0,0.4));
+}
+.tagline{color:#aa7733;font-size:15px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:40px}
+.btn{
+  display:block;width:100%;padding:16px;border-radius:18px;border:none;
+  cursor:pointer;font-family:'Fredoka One',cursive;font-size:21px;
+  letter-spacing:.5px;transition:transform .12s,box-shadow .12s;
+  margin-bottom:13px;text-align:center;text-decoration:none;
+}
+.btn:active{transform:translateY(4px)}
+.btn-primary{
+  background:linear-gradient(135deg,#FFB800 0%,#FF7A00 100%);
+  color:#1a0900;box-shadow:0 6px 0 #8B4000,0 8px 20px rgba(255,120,0,.35);
+}
+.btn-primary:active{box-shadow:0 2px 0 #8B4000}
+.btn-disabled{
+  background:linear-gradient(135deg,#2a1a2e,#1a0f22);
+  color:#554466;box-shadow:0 4px 0 #110a16;cursor:not-allowed;
+  border:2px solid #332244;
+}
+.btn-ghost{
+  background:transparent;color:#FFB800;
+  border:2px solid rgba(255,184,0,0.4);font-size:18px;
+}
+.btn-ghost:hover{border-color:#FFB800;background:rgba(255,184,0,.06)}
+.badge{
+  display:inline-block;background:var(--pink);color:#fff;
+  font-size:11px;padding:2px 9px;border-radius:20px;
+  font-family:'Nunito',sans-serif;font-weight:900;vertical-align:middle;margin-left:8px;
+}
+
+/* ── SETUP ── */
+.header{display:flex;align-items:center;margin-bottom:26px}
+.back-btn{
+  background:rgba(255,255,255,.07);border:1.5px solid var(--border);
+  color:var(--yellow);font-size:20px;width:44px;height:44px;
+  border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;flex-shrink:0;
+}
+.back-btn:hover{background:rgba(255,184,0,.12)}
+.header h2{
+  font-family:'Fredoka One',cursive;font-size:26px;color:var(--yellow);margin-left:12px;
+}
+.sec-label{
+  font-size:12px;color:#887766;font-weight:900;letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:26px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:26px}
+.card{
+  background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:18px 14px;cursor:pointer;text-align:center;
+  transition:all .2s;
+}
+.card:hover{background:rgba(255,184,0,.1);border-color:rgba(255,184,0,.4)}
+.card.sel-role{background:rgba(255,184,0,.15);border-color:var(--yellow);
+  box-shadow:0 0 0 2px rgba(255,184,0,.25)}
+.card.sel-easy{background:rgba(0,212,160,.12);border-color:var(--teal)}
+.card.sel-medium{background:rgba(255,184,0,.12);border-color:var(--yellow)}
+.card.sel-hard{background:rgba(255,79,109,.12);border-color:var(--pink)}
+.card-icon{font-size:34px;margin-bottom:8px}
+.card-name{font-family:'Fredoka One',cursive;font-size:17px;color:var(--text)}
+.card-desc{font-size:12px;color:var(--muted);margin-top:4px}
+#start-btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;box-shadow:0 4px 0 #8B4000}
+
+/* ── HOWTO MODAL ── */
+.modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:200;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(4px);
+}
+.modal.active{display:flex}
+.modal-box{
+  background:#170b00;border:2px solid var(--yellow);border-radius:24px;
+  padding:28px;max-width:380px;width:100%;max-height:85vh;overflow-y:auto;
+  animation:fadeUp .3s ease;
+}
+.modal-box h3{
+  font-family:'Fredoka One',cursive;font-size:30px;color:var(--yellow);
+  text-align:center;margin-bottom:22px;
+}
+.step{display:flex;gap:14px;margin-bottom:18px;align-items:flex-start}
+.step-n{
+  background:var(--yellow);color:#1a0900;font-family:'Fredoka One',cursive;
+  font-size:17px;min-width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.step p{color:#CCA888;font-size:14px;line-height:1.55}
+.step p strong{color:var(--text)}
+
+/* ── GAME SCREEN ── */
+#s-game{padding:14px}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px}
+.score-box{
+  background:rgba(255,255,255,.06);border:1.5px solid var(--border);
+  border-radius:14px;padding:10px 14px;text-align:center;min-width:90px;
+}
+.score-name{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.score-val{font-family:'Fredoka One',cursive;font-size:26px;color:var(--yellow);line-height:1}
+.score-box.winning .score-val{color:var(--teal)}
+.phase-box{text-align:center;flex:1}
+.phase-label{font-family:'Fredoka One',cursive;font-size:17px;color:var(--text)}
+.phase-sub{font-size:11px;color:var(--muted);font-weight:700;margin-top:2px}
+.canvas-wrap{
+  display:flex;justify-content:center;align-items:center;
+  margin-bottom:12px;position:relative;
+}
+#c{
+  display:block;border-radius:50%;
+  box-shadow:0 0 40px rgba(255,120,0,.2),0 0 80px rgba(255,80,0,.1);
+  cursor:crosshair;touch-action:none;
+  max-width:100%;height:auto;
+}
+.slices-row{
+  display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  margin-bottom:12px;min-height:32px;
+}
+.slice-tag{
+  padding:4px 10px;border-radius:20px;font-size:12px;
+  font-weight:800;color:#fff;transition:opacity .15s ease, transform .1s;
+}
+.slice-tag:active{opacity:0.4;transform:scale(0.95);}
+.action-row{display:flex;gap:10px}
+.btn-done{
+  flex:1;background:linear-gradient(135deg,#00C896,#009E76);
+  color:#fff;font-family:'Fredoka One',cursive;font-size:20px;
+  padding:14px;border-radius:14px;border:none;cursor:pointer;
+  box-shadow:0 5px 0 #006B50;transition:transform .1s,box-shadow .1s;
+}
+.btn-done:active{transform:translateY(4px);box-shadow:0 1px 0 #006B50}
+
+/* ── RESULTS ── */
+#s-results{text-align:center;padding-top:30px}
+.res-emoji{font-size:78px;margin-bottom:10px;display:block}
+.res-title{
+  font-family:'Fredoka One',cursive;font-size:44px;
+  background:linear-gradient(135deg,#FFD060,#FF9500);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:6px;
+}
+.res-sub{color:#AA7744;font-size:15px;margin-bottom:28px;font-weight:700}
+.res-card{
+  background:rgba(255,255,255,.05);border:1.5px solid var(--border);
+  border-radius:20px;padding:6px;margin-bottom:24px;
+}
+.res-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px;border-radius:14px;transition:background .3s;
+}
+.res-row.winner{background:rgba(0,212,160,.1);border:1px solid rgba(0,212,160,.3)}
+.res-player{font-weight:800;font-size:16px;color:var(--text)}
+.res-pct{font-family:'Fredoka One',cursive;font-size:30px;color:var(--yellow)}
+.res-row.winner .res-pct{color:var(--teal)}
+
+/* ── TURN TOAST ── */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-60px);
+  background:rgba(255,184,0,.95);color:#1a0900;font-family:'Fredoka One',cursive;
+  font-size:18px;padding:10px 24px;border-radius:30px;z-index:300;
+  transition:transform .35s cubic-bezier(.2,1.4,.5,1);white-space:nowrap;
+  box-shadow:0 4px 20px rgba(255,150,0,.4);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#443322;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="s-landing">
+  <span class="pizza-spin">🍕</span>
+  <div class="game-title">Pizza Slice</div>
+  <div class="tagline">Take the biggest share</div>
+  <button class="btn btn-primary" onclick="showSetup()">🕹 Single Player</button>
+  <button class="btn btn-disabled" disabled>👥 Multiplayer <span class="badge">Soon</span></button>
+  <button class="btn btn-ghost" onclick="openHowTo()">📖 How to Play</button>
+</div>
+
+<div class="screen" id="s-setup">
+  <div class="header">
+    <button class="back-btn" onclick="showLanding()">←</button>
+    <h2>Game Setup</h2>
+  </div>
+
+  <div class="sec-label">Choose Your Role</div>
+  <div class="grid2">
+    <div class="card" id="role-cutter" onclick="pickRole('cutter')">
+      <div class="card-icon">🔪</div>
+      <div class="card-name">The Cutter</div>
+      <div class="card-desc">You cut first, AI selects</div>
+    </div>
+    <div class="card" id="role-selector" onclick="pickRole('selector')">
+      <div class="card-icon">👆</div>
+      <div class="card-name">The Selector</div>
+      <div class="card-desc">AI cuts first, you select</div>
+    </div>
+  </div>
+
+  <div class="sec-label">AI Difficulty</div>
+  <div class="grid3">
+    <div class="card" id="diff-easy" onclick="pickDiff('easy')">
+      <div class="card-icon">🟢</div>
+      <div class="card-name">Easy</div>
+     
+    </div>
+    <div class="card" id="diff-medium" onclick="pickDiff('medium')">
+      <div class="card-icon">🟡</div>
+      <div class="card-name">Medium</div>
+      
+    </div>
+    <div class="card" id="diff-hard" onclick="pickDiff('hard')">
+      <div class="card-icon">🔴</div>
+      <div class="card-name">Hard</div>
+      
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="start-btn" onclick="startGame()" disabled>Start Game 🍕</button>
+  <button class="btn btn-ghost" onclick="openHowTo()" style="margin-top:10px;padding:12px">📖 How to Play</button>
+</div>
+
+<div class="modal" id="modal-howto">
+  <div class="modal-box">
+    <h3>🍕 How to Play</h3>
+    <div class="step">
+      <div class="step-n">1</div>
+      <p>One player <strong>cuts</strong> the pizza by dragging across it. You have <strong>15 seconds</strong> to make as many cuts as you want. Each cut creates a new slice.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <p>The other player <strong>selects</strong> first. they can pick <strong>any slice</strong> they want.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <p>Players alternate picking slices until the pizza is gone. Click the <strong>percentage tags</strong> below the pizza. You can pick a tag that correlates with the colored slice you want.</p>
+    </div>
+    <div class="step">
+      <div class="step-n">4</div>
+      <p>The goal of the game is simple. The player with the <strong>most pizza % wins!</strong></p>
+    </div>
+    <button class="btn btn-primary" onclick="closeHowTo()" style="margin-top:14px">Got it! 🎮</button>
+  </div>
+</div>
+
+<div class="screen" id="s-game">
+  <div class="game-top">
+    <div class="score-box" id="sb-player">
+      <div class="score-name">You</div>
+      <div class="score-val" id="sv-player">0.0%</div>
+    </div>
+    <div class="phase-box">
+      <div class="phase-label" id="ph-label">Get Ready</div>
+      <div class="phase-sub" id="ph-sub"></div>
+    </div>
+    <div class="score-box" id="sb-ai">
+      <div class="score-name">AI</div>
+      <div class="score-val" id="sv-ai">0.0%</div>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c" width="360" height="360"></canvas>
+  </div>
+
+  <div class="slices-row" id="slices-row"></div>
+
+  <div class="action-row">
+    <button class="btn-done" id="done-btn" onclick="playerDoneCutting()">Done Cutting ✅</button>
+  </div>
+</div>
+
+<div class="screen" id="s-results">
+  <span class="res-emoji" id="res-emoji">🏆</span>
+  <div class="res-title" id="res-title">You Win!</div>
+  <div class="res-sub" id="res-sub">You claimed more pizza</div>
+  <div class="res-card">
+    <div class="res-row" id="rrow-player">
+      <span class="res-player">🎮 You</span>
+      <span class="res-pct" id="rsc-player">0.0%</span>
+    </div>
+    <div class="res-row" id="rrow-ai">
+      <span class="res-player">🤖 AI</span>
+      <span class="res-pct" id="rsc-ai">0.0%</span>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="showLanding()">Play Again 🍕</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CX=180,CY=180,R=155,W=360,H=360,TAU=2*Math.PI,CUT_TIME=15;
+const COLORS=['#FF6B6B','#FFA07A','#FFD700','#7FFF7F','#87CEEB','#DDA0DD','#F0E68C','#90EE90','#FFB6C1','#ADD8E6','#FFDAB9','#98F5FF','#FF69B4','#ADFF2F','#FF7F50','#BA55D3','#00FA9A','#FF4500','#1E90FF','#DAA520'];
+const PEPP=[{r:.27,a:.4},{r:.44,a:1.8},{r:.53,a:3.7},{r:.60,a:.9},{r:.63,a:2.5},{r:.65,a:5.1},{r:.31,a:3.2},{r:.48,a:5.5},{r:.70,a:1.4},{r:.68,a:4.2},{r:.55,a:.1},{r:.37,a:2.0},{r:.42,a:4.7},{r:.59,a:3.0}];
+
+let S={role:null,diff:null,cutter:null,selector:null,phase:'idle',currentTurn:null,cutAngles:[],slices:[],validChoices:[],timeLeft:CUT_TIME,timerStart:null,timerRaf:null,timerDone:false,playerScore:0,aiScore:0,aiCutTimeout:null};
+let canvas,ctx,isDrawing=false,stroke=[];
+
+window.onload=()=>{
+  canvas=document.getElementById('c');
+  ctx=canvas.getContext('2d');
+  setupEvents();
+};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showLanding(){stopAll();resetState();showScreen('s-landing')}
+function showSetup(){showScreen('s-setup')}
+function openHowTo(){document.getElementById('modal-howto').classList.add('active')}
+function closeHowTo(){document.getElementById('modal-howto').classList.remove('active')}
+
+function pickRole(r){
+  S.role=r;
+  ['cutter','selector'].forEach(x=>document.getElementById('role-'+x).classList.toggle('sel-role',x===r));
+  checkReady();
+}
+function pickDiff(d){
+  S.diff=d;
+  ['easy','medium','hard'].forEach(x=>{const el=document.getElementById('diff-'+x);el.className='card'+(x===d?' sel-'+x:'')});
+  checkReady();
+}
+function checkReady(){document.getElementById('start-btn').disabled=!(S.role&&S.diff)}
+
+function startGame(){
+  S.cutter=S.role==='cutter'?'player':'ai';
+  S.selector=S.role==='selector'?'player':'ai';
+  S.currentTurn=S.cutter;
+  S.phase='cutting';
+  showScreen('s-game');
+  updateScores();
+  if(S.cutter==='player')beginPlayerCutting();
+  else beginAICutting();
+}
+
+function resetState(){
+  stopAll();
+  S={...S,role:null,diff:null,cutter:null,selector:null,phase:'idle',currentTurn:null,cutAngles:[],slices:[],validChoices:[],timeLeft:CUT_TIME,timerStart:null,timerRaf:null,timerDone:false,playerScore:0,aiScore:0,aiCutTimeout:null};
+  isDrawing=false;stroke=[];
+  ['cutter','selector'].forEach(x=>document.getElementById('role-'+x).classList.remove('sel-role'));
+  ['easy','medium','hard'].forEach(x=>document.getElementById('diff-'+x).className='card');
+  document.getElementById('start-btn').disabled=true;
+}
+function stopAll(){cancelAnimationFrame(S.timerRaf);clearTimeout(S.aiCutTimeout);S.timerDone=true}
+
+function beginPlayerCutting(){
+  S.timeLeft=CUT_TIME;S.timerStart=null;S.timerDone=false;
+  document.getElementById('done-btn').style.display='block';
+  canvas.style.cursor='crosshair';
+  setPhase('✂️ Cut the Pizza!','Draw across the pizza — 15 seconds!');
+  drawCuttingFrame(performance.now());
+}
+function drawCuttingFrame(now){
+  if(S.timerDone)return;
+  if(!S.timerStart)S.timerStart=now;
+  S.timeLeft=Math.max(0,CUT_TIME-(now-S.timerStart)/1000);
+  drawFull();
+  if(S.timeLeft<=0){S.timerDone=true;endCutPhase()}
+  else S.timerRaf=requestAnimationFrame(drawCuttingFrame);
+}
+function playerDoneCutting(){if(S.phase!=='cutting')return;S.timerDone=true;cancelAnimationFrame(S.timerRaf);endCutPhase()}
+function endCutPhase(){isDrawing=false;stroke=[];document.getElementById('done-btn').style.display='none';ensureMinSlices();recompute();beginSelectPhase()}
+
+function beginAICutting(){
+  S.timeLeft=CUT_TIME;S.timerStart=null;S.timerDone=false;
+  canvas.style.cursor='default';
+  document.getElementById('done-btn').style.display='none';
+  setPhase('🤖 AI is Cutting...','Watch carefully...');
+  const angles=genAIAngles();
+  const totalTime=(CUT_TIME-1)*1000;
+  const interval=Math.floor(totalTime/angles.length);
+  let idx=0;
+  
+  function cutNext(){
+    if(idx>=angles.length||S.timerDone){
+      S.timerDone=true;
+      setTimeout(()=>{ensureMinSlices();recompute();beginSelectPhase()},600);
+      return;
+    }
+    const angle=angles[idx++];
+    animAICut(angle,()=>{addAngle(angle);recompute();updateSlicesRow();S.aiCutTimeout=setTimeout(cutNext,interval)});
+  }
+
+  S.timerStart=performance.now();
+  function timerLoop(now){
+    if(S.timerDone)return;
+    S.timeLeft=Math.max(0,CUT_TIME-(now-S.timerStart)/1000);
+    drawFull();
+    S.timerRaf=requestAnimationFrame(timerLoop);
+  }
+  S.timerRaf=requestAnimationFrame(timerLoop);
+  S.aiCutTimeout=setTimeout(cutNext,700);
+}
+
+function animAICut(angle,cb){
+  let t=0;const steps=18;
+  function frame(){
+    t++;
+    const prog=t/steps;
+    const ex=CX+R*prog*Math.cos(angle);
+    const ey=CY+R*prog*Math.sin(angle);
+    ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(ex,ey);
+    ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2.5;ctx.stroke();
+    if(t<steps)requestAnimationFrame(frame);else cb();
+  }
+  requestAnimationFrame(frame);
+}
+
+function genAIAngles(){
+  const d=S.diff;let n,angles=[];
+  if(d==='easy'){n=4+randInt(3);const base=TAU/n;for(let i=0;i<n;i++)angles.push(norm(i*base+(Math.random()-.5)*base*.6))}
+  else if(d==='medium'){n=7+randInt(4);for(let i=0;i<n;i++)angles.push(Math.random()*TAU)}
+  else{n=11+randInt(5);for(let i=0;i<n;i++)angles.push(Math.random()*TAU)}
+  return angles.sort((a,b)=>a-b);
+}
+
+function beginSelectPhase(){
+  S.phase='selecting';S.currentTurn=S.selector;S.validChoices=getValid();
+  drawSelect();updateSlicesRow();
+  if(S.currentTurn==='player'){canvas.style.cursor='pointer';setPhase('👆 Your Pick!','Tap any slice or its tag below')}
+  else{canvas.style.cursor='default';setPhase('🤖 AI Picks...','');S.aiCutTimeout=setTimeout(aiPick,1300)}
+}
+
+function getValid(){return S.slices.map((_,i)=>i).filter(i=>!S.slices[i].removed)}
+function pick(i){
+  if(S.phase!=='selecting')return;
+  const sl=S.slices[i];if(!sl||sl.removed)return;
+  sl.removed=true;sl.owner=S.currentTurn;
+  const pct=sl.pct;
+  if(S.currentTurn==='player')S.playerScore=+(S.playerScore+pct).toFixed(1);
+  else S.aiScore=+(S.aiScore+pct).toFixed(1);
+  updateScores();
+  if(S.slices.every(s=>s.removed)){endGame();return}
+  S.currentTurn=S.currentTurn==='player'?'ai':'player';
+  S.validChoices=getValid();drawSelect();updateSlicesRow();
+  if(S.currentTurn==='ai'){setPhase('🤖 AI Picks...','');canvas.style.cursor='default';S.aiCutTimeout=setTimeout(aiPick,950)}
+  else{canvas.style.cursor='pointer';setPhase('👆 Your Pick!','Take any remaining slice')}
+}
+
+function aiPick(){
+  const choices=S.validChoices;if(!choices.length)return;
+  let chosen;
+  if(S.diff==='easy')chosen=choices[randInt(choices.length)];
+  else if(S.diff==='medium')chosen=choices.reduce((b,i)=>S.slices[i].pct>S.slices[b].pct?i:b);
+  else{
+    let best=-Infinity,bestC=choices[0];
+    for(const c of choices){
+      const gain=S.slices[c].pct;
+      const rem=choices.filter(idx=>idx!==c);
+      const opp=rem.length?Math.max(...rem.map(idx=>S.slices[idx].pct)):0;
+      const score=gain-(opp*0.8);
+      if(score>best){best=score;bestC=c}
+    }
+    chosen=bestC;
+  }
+  pick(chosen);
+}
+
+function setupEvents(){
+  canvas.addEventListener('mousedown',e=>{if(S.phase==='cutting'&&S.currentTurn==='player'&&!S.timerDone){isDrawing=true;stroke=[pos(e)]}});
+  canvas.addEventListener('mousemove',e=>{if(isDrawing)stroke.push(pos(e))});
+  canvas.addEventListener('mouseup',e=>{if(isDrawing){stroke.push(pos(e));endStroke()}});
+  canvas.addEventListener('mouseleave',()=>{if(isDrawing)endStroke()});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();if(S.phase==='cutting'&&S.currentTurn==='player'&&!S.timerDone){isDrawing=true;stroke=[pos(e.touches[0])]}},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(isDrawing)stroke.push(pos(e.touches[0]))},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();if(isDrawing){if(e.changedTouches[0])stroke.push(pos(e.changedTouches[0]));endStroke()}},{passive:false});
+  canvas.addEventListener('click',handleClick);
+}
+function pos(e){const r=canvas.getBoundingClientRect();const sx=canvas.width/r.width,sy=canvas.height/r.height;return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy}}
+function endStroke(){isDrawing=false;if(stroke.length>1)finalizeStroke(stroke);stroke=[]}
+function finalizeStroke(path){
+  let exitAngle=null;
+  for(let i=0;i<path.length-1;i++){
+    const hits=segCircle(path[i],path[i+1]);
+    for(const h of hits){if(dist(path[i+1])>dist(path[i]))exitAngle=h.angle}
+  }
+  if(exitAngle===null){const last=path[path.length-1];const dx=last.x-CX,dy=last.y-CY;if(Math.sqrt(dx*dx+dy*dy)>12)exitAngle=norm(Math.atan2(dy,dx))}
+  if(exitAngle!==null){if(addAngle(exitAngle+(Math.random()-.5)*0.08)){recompute();updateSlicesRow()}}
+}
+function dist(p){const dx=p.x-CX,dy=p.y-CY;return Math.sqrt(dx*dx+dy*dy)}
+function segCircle(p1,p2){
+  const dx=p2.x-p1.x,dy=p2.y-p1.y,fx=p1.x-CX,fy=p1.y-CY,a=dx*dx+dy*dy;if(a<.001)return[];
+  const b=2*(fx*dx+fy*dy),c=fx*fx+fy*fy-R*R,disc=b*b-4*a*c;if(disc<0)return[];
+  const sq=Math.sqrt(disc),res=[];
+  for(const s of[-1,1]){const t=(-b+s*sq)/(2*a);if(t>=0&&t<=1){const x=p1.x+t*dx,y=p1.y+t*dy;res.push({t,angle:norm(Math.atan2(y-CY,x-CX))})}}
+  return res;
+}
+function handleClick(e){
+  if(S.phase!=='selecting'||S.currentTurn!=='player')return;
+  const p=pos(e),dx=p.x-CX,dy=p.y-CY;if(Math.sqrt(dx*dx+dy*dy)>R)return;
+  const a=norm(Math.atan2(dy,dx));
+  for(let i=0;i<S.slices.length;i++)if(!S.slices[i].removed&&angleInSlice(a,S.slices[i])){pick(i);return}
+}
+function angleInSlice(a,sl){const s=sl.startAngle,e=sl.endAngle;return e<=TAU+.001?a>=s&&a<=e:a>=s||a<=(e-TAU)}
+
+function norm(a){a=a%TAU;if(a<0)a+=TAU;return a}
+function addAngle(angle){
+  angle=norm(angle);const MIN=0.07;
+  for(const a of S.cutAngles){let d=Math.abs(angle-a);if(d>Math.PI)d=TAU-d;if(d<MIN)return false}
+  S.cutAngles.push(angle);S.cutAngles.sort((a,b)=>a-b);return true;
+}
+function recompute(){
+  const A=S.cutAngles,n=A.length;if(n<2){S.slices=[];return}
+  S.slices=A.map((a,i)=>{const b=A[(i+1)%n],arc=i<n-1?b-a:(TAU-a)+A[0],end=i<n-1?b:A[0]+TAU,pct=+((arc/TAU*100).toFixed(1));return{startAngle:a,endAngle:end,arc,midAngle:norm(a+arc/2),pct,removed:false,owner:null}});
+}
+function ensureMinSlices(){while(S.cutAngles.length<3)addAngle(Math.random()*TAU)}
+function randInt(n){return Math.floor(Math.random()*n)}
+
+function drawFull(){
+  drawBase();
+  for(const a of S.cutAngles){
+    ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(CX+R*Math.cos(a),CY+R*Math.sin(a));
+    ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=2.5;ctx.setLineDash([]);ctx.stroke();
+  }
+  if(S.cutAngles.length>0){ctx.beginPath();ctx.arc(CX,CY,5,0,TAU);ctx.fillStyle='white';ctx.fill()}
+  if(stroke.length>1){
+    ctx.beginPath();ctx.moveTo(stroke[0].x,stroke[0].y);for(let i=1;i<stroke.length;i++)ctx.lineTo(stroke[i].x,stroke[i].y);
+    ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.setLineDash([4,5]);ctx.lineCap='round';ctx.stroke();ctx.setLineDash([]);
+  }
+  drawTimerRing();
+  if(S.cutAngles.length>=2)drawCutLabels();
+  else{ctx.font='bold 28px Fredoka One';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillText('100.0%',CX,CY)}
+}
+
+function drawBase(){
+  ctx.clearRect(0,0,W,H);
+  const og=ctx.createRadialGradient(CX,CY,R-5,CX,CY,R+25);og.addColorStop(0,'rgba(255,140,0,.25)');og.addColorStop(1,'rgba(255,80,0,0)');
+  ctx.beginPath();ctx.arc(CX,CY,R+25,0,TAU);ctx.fillStyle=og;ctx.fill();
+  ctx.beginPath();ctx.arc(CX,CY,R,0,TAU);
+  const cg=ctx.createRadialGradient(CX-25,CY-25,40,CX,CY,R);cg.addColorStop(0,'#f0b840');cg.addColorStop(.7,'#c87818');cg.addColorStop(1,'#7a3808');
+  ctx.fillStyle=cg;ctx.fill();
+  ctx.beginPath();ctx.arc(CX,CY,R*.86,0,TAU);ctx.fillStyle='#b82c22';ctx.fill();
+  ctx.beginPath();ctx.arc(CX,CY,R*.80,0,TAU);
+  const chg=ctx.createRadialGradient(CX-15,CY-15,10,CX,CY,R*.80);chg.addColorStop(0,'#f5d060');chg.addColorStop(1,'#d0a020');
+  ctx.fillStyle=chg;ctx.fill();
+  ctx.fillStyle='rgba(255,240,150,.3)';[[35,40,28],[80,120,22],[-40,60,18],[-60,-20,25],[20,-50,20],[70,-30,15]].forEach(([dx,dy,r2])=>{ctx.beginPath();ctx.arc(CX+dx,CY+dy,r2,0,TAU);ctx.fill()});
+  for(const p of PEPP){
+    const px=CX+p.r*R*.80*Math.cos(p.a),py=CY+p.r*R*.80*Math.sin(p.a);
+    ctx.beginPath();ctx.arc(px,py,R*.062,0,TAU);ctx.fillStyle='#8B1010';ctx.fill();
+    ctx.beginPath();ctx.arc(px-2,py-2,R*.02,0,TAU);ctx.fillStyle='rgba(255,130,100,.35)';ctx.fill();
+  }
+}
+
+function drawTimerRing(){
+  if(S.phase!=='cutting')return;
+  const p=Math.max(0,S.timeLeft/CUT_TIME),sa=-Math.PI/2,ea=sa+TAU*p;
+  ctx.beginPath();ctx.arc(CX,CY,R+17,0,TAU);ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=9;ctx.setLineDash([]);ctx.stroke();
+  const col=S.timeLeft>7?'#00E676':S.timeLeft>3?'#FFB800':'#FF3333';
+  ctx.beginPath();ctx.arc(CX,CY,R+17,sa,ea);ctx.strokeStyle=col;ctx.lineWidth=9;ctx.lineCap='round';ctx.stroke();
+  ctx.font='bold 16px Fredoka One';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=col;ctx.fillText(Math.ceil(S.timeLeft)+'s',CX,18);
+}
+
+function drawCutLabels(){
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const sl of S.slices){
+    if(sl.removed||sl.pct<1.5)continue;
+    const lx=CX+R*.6*Math.cos(sl.midAngle),ly=CY+R*.6*Math.sin(sl.midAngle);
+    ctx.font='bold 12px Nunito';ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillText(sl.pct.toFixed(1)+'%',lx,ly);
+  }
+}
+
+function drawSelect(){
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<S.slices.length;i++){
+    const sl=S.slices[i],col=COLORS[i%COLORS.length];
+    ctx.beginPath();ctx.moveTo(CX,CY);ctx.arc(CX,CY,R,sl.startAngle,sl.endAngle);ctx.closePath();
+    if(sl.removed){ctx.fillStyle='rgba(0,0,0,.25)';ctx.fill()}
+    else{ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke()}
+  }
+  ctx.beginPath();ctx.arc(CX,CY,R,0,TAU);ctx.strokeStyle='#7a3808';ctx.lineWidth=12;ctx.stroke();
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<S.slices.length;i++){
+    const sl=S.slices[i];if(sl.removed||sl.pct<1.5)continue;
+    const lx=CX+R*.6*Math.cos(sl.midAngle),ly=CY+R*.6*Math.sin(sl.midAngle);
+    ctx.font='bold 13px Nunito';ctx.fillStyle='rgba(255,255,255,0.95)';ctx.fillText(sl.pct.toFixed(1)+'%',lx,ly);
+  }
+  ctx.beginPath();ctx.arc(CX,CY,11,0,TAU);ctx.fillStyle='#0c0500';ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+}
+
+function setPhase(label,sub){document.getElementById('ph-label').textContent=label;document.getElementById('ph-sub').textContent=sub}
+function updateScores(){
+  document.getElementById('sv-player').textContent=S.playerScore.toFixed(1)+'%';
+  document.getElementById('sv-ai').textContent=S.aiScore.toFixed(1)+'%';
+  document.getElementById('sb-player').classList.toggle('winning',S.playerScore>S.aiScore);
+  document.getElementById('sb-ai').classList.toggle('winning',S.aiScore>S.playerScore);
+}
+function updateSlicesRow(){
+  if(!S.slices.length){document.getElementById('slices-row').innerHTML='';return}
+  document.getElementById('slices-row').innerHTML=S.slices.map((sl,i)=>{
+    const col=COLORS[i%COLORS.length];
+    const isClickable=!sl.removed&&S.currentTurn==='player'&&S.phase==='selecting';
+    const opacity = sl.removed ? 0.2 : 1.0;
+    return`<span class="slice-tag" ${isClickable?`onclick="pick(${i})"`:''} style="background:${col}33;border:1px solid ${col}88;color:${col};cursor:${isClickable?'pointer':'default'};opacity:${opacity}">${sl.pct.toFixed(1)}%</span>`;
+  }).join('');
+}
+
+function endGame(){
+  stopAll();S.phase='results';const pw=S.playerScore>S.aiScore,tied=Math.abs(S.playerScore-S.aiScore)<.5;
+  document.getElementById('res-emoji').textContent=tied?'🤝':pw?'🏆':'😤';
+  document.getElementById('res-title').textContent=tied?"It's a Tie!":pw?'You Win!':'AI Wins!';
+  document.getElementById('res-sub').textContent=tied?'Perfectly balanced — impressive!':pw?`You claimed ${S.playerScore.toFixed(1)}% of the pizza 🍕`:`AI got ${S.aiScore.toFixed(1)}%. Better luck next time!`;
+  document.getElementById('rsc-player').textContent=S.playerScore.toFixed(1)+'%';
+  document.getElementById('rsc-ai').textContent=S.aiScore.toFixed(1)+'%';
+  document.getElementById('rrow-player').classList.toggle('winner',pw&&!tied);
+  document.getElementById('rrow-ai').classList.toggle('winner',!pw&&!tied);
+  setTimeout(()=>showScreen('s-results'),400);
+}
+</script>
+</body>
+</html>
